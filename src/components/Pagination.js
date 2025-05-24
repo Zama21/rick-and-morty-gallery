@@ -1,63 +1,89 @@
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
 import { useData } from './providers';
+import { useCallback } from 'react';
 
 export function Pagination() {
-  const [pages, setPages] = useState([]);
   const { apiURL, info, activePage, setActivePage, setApiURL } = useData();
 
-  const pageClickHandler = (index) => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setActivePage(index);
-    setApiURL(pages[index]);
-  };
+  const pageClickHandler = useCallback(
+    (index) => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  useEffect(() => {
-    const createdPages = Array.from({ length: info.pages }, (_, i) => {
       const URLWithPage = new URL(apiURL);
+      URLWithPage.searchParams.set('page', index + 1);
+      setApiURL(URLWithPage);
+      setActivePage(index);
+    },
+    [apiURL, setApiURL, setActivePage]
+  );
 
-      URLWithPage.searchParams.set('page', i + 1);
+  const handlePageClick = useCallback(
+    (pageNumber) => {
+      return () => pageClickHandler(pageNumber);
+    },
+    [pageClickHandler]
+  );
 
-      return URLWithPage;
-    });
+  if (info.pages <= 1) return null;
 
-    setPages(createdPages);
-  }, [info]);
+  const getPageNumbers = () => {
+    const delta = 1; // сколько страниц показывать слева и справа от активной
+    const range = [];
 
-  if (pages.length <= 1) return null;
+    if (activePage > delta) {
+      range.push(
+        {
+          pageNumber: 0,
+          pageName: '« First'
+        },
+        {
+          pageNumber: -1,
+          pageName: '...'
+        }
+      );
+    }
+
+    for (let i = activePage - delta; i <= activePage + delta; i++) {
+      if (i >= 0 && i < info.pages) {
+        range.push({
+          pageNumber: i,
+          pageName: i + 1
+        });
+      }
+    }
+
+    if (activePage < info.pages - delta - 1) {
+      range.push(
+        {
+          pageNumber: -2,
+          pageName: '...'
+        },
+        {
+          pageNumber: info.pages - 1,
+          pageName: 'Last »'
+        }
+      );
+    }
+
+    return range;
+  };
 
   return (
     <StyledPagination>
-      {pages[activePage - 1] && (
-        <>
-          {activePage - 1 !== 0 && (
-            <>
-              <Page onClick={() => pageClickHandler(0)}>« First</Page>
-              <Ellipsis>...</Ellipsis>
-            </>
-          )}
-
-          <Page onClick={() => pageClickHandler(activePage - 1)}>
-            {activePage}
+      {getPageNumbers().map(({ pageNumber, pageName }) =>
+        pageName === '...' ? (
+          <Ellipsis key={pageNumber} tabIndex={-1}>
+            ...
+          </Ellipsis>
+        ) : (
+          <Page
+            key={pageNumber}
+            active={pageNumber === activePage}
+            onClick={handlePageClick(pageNumber)}
+          >
+            {pageName}
           </Page>
-        </>
-      )}
-
-      <Page active>{activePage + 1}</Page>
-
-      {pages[activePage + 1] && (
-        <>
-          <Page onClick={() => pageClickHandler(activePage + 1)}>
-            {activePage + 2}
-          </Page>
-
-          {activePage + 1 !== pages.length - 1 && (
-            <>
-              <Ellipsis>...</Ellipsis>
-              <Page onClick={() => pageClickHandler(pages.length)}>Last »</Page>
-            </>
-          )}
-        </>
+        )
       )}
     </StyledPagination>
   );
@@ -68,7 +94,7 @@ const StyledPagination = styled.div`
   text-align: center;
 `;
 
-const Page = styled.span`
+const Page = styled.button`
   color: #fff;
   font-size: 18px;
   padding: 5px;
@@ -79,14 +105,6 @@ const Page = styled.span`
   &:hover {
     color: #83bf46;
   }
-`;
-
-const Container = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  justify-items: center;
-  gap: 30px;
 `;
 
 const Ellipsis = styled(Page)`

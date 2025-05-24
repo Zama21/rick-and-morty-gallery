@@ -1,45 +1,44 @@
 import { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
-import axios from 'axios';
 import { Loader, Text } from '../common';
 
-const API_EPISODES_URL = 'https://rickandmortyapi.com/api/episode';
+import { API_EPISODES_URL } from 'constants';
+import { useFetch } from 'hooks';
 
 export function PopupEpisodes({ episodes }) {
-  const [series, setSeries] = useState([]);
-  const [isFetching, setIsFetching] = useState(true);
+  const [episodeIds, setEpisodeIds] = useState([]);
+  const { data: series, isLoading, error } = useFetch(
+    episodeIds.length > 0 ? `${API_EPISODES_URL}/${episodeIds.join(',')}` : null
+  );
 
   useEffect(() => {
-    if (!episodes?.length) {
-      return;
-    }
+    if (!episodes?.length) return;
 
-    setIsFetching(true);
-
-    const episodesIds = episodes.map((ep) => ep.match(/\d+$/)[0]);
-
-    axios
-      .get(`${API_EPISODES_URL}/${episodesIds.join(',')}`)
-      .then(({ data }) => {
-        if (episodes.length === 1) {
-          setSeries([data]);
-        } else {
-          setSeries(data);
-        }
-      });
+    const ids = episodes.map((ep) => ep.match(/\d+$/)[0]);
+    setEpisodeIds(ids);
   }, [episodes]);
 
-  if (isFetching) {
+  if (isLoading) {
     return <Loader />;
   }
+
+  if (error) {
+    return <Text>Error: {error.message}</Text>;
+  }
+
+  const normalizedSeries = series
+    ? Array.isArray(series)
+      ? series
+      : [series]
+    : [];
 
   return (
     <PopupEpisodesContainer>
       <Text>Participated in episodes:</Text>
 
-      <StyledPopupEpisodes _length={series.length}>
-        {series?.map(({ id, name, episode }) => (
-          <Episode key={id} _length={series.length}>
+      <StyledPopupEpisodes _length={normalizedSeries?.length}>
+        {normalizedSeries?.map(({ id, name, episode }) => (
+          <Episode key={id}>
             <EpisodeMarking>
               {episode
                 .replace(/S0?(\d+)/, 'Season $1 - ')

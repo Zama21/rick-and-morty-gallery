@@ -1,40 +1,24 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import { Popup } from './popup';
 import { useData } from './providers';
 import { Card } from './Card';
-
-const defaultPopupSettings = {
-  visible: false,
-  content: {}
-};
+import { usePopup } from 'hooks';
+import { useCallback } from 'react';
 
 export function ItemsGrid() {
   const { characters } = useData();
-  const [popupSettings, setPopupSettings] = useState(defaultPopupSettings);
+  const { popupSettings, openPopup, closePopup } = usePopup();
 
-  function cardOnClickHandler(props) {
-    setPopupSettings({
-      visible: true,
-      content: { ...props }
-    });
-  }
+  const handleCardClick = useCallback((props) => openPopup(props), [openPopup]);
 
-  if (!characters.length) {
-    return null;
-  }
+  if (!characters.length) return null;
 
   return (
     <Container>
-      {characters.map((props, index) => (
-        <Card
-          key={index}
-          onClickHandler={() => cardOnClickHandler(props)}
-          {...props}
-        />
+      {characters.map((props) => (
+        <Card key={props.id} onClickHandler={handleCardClick} props={props} />
       ))}
-
-      <Popup settings={popupSettings} setSettings={setPopupSettings} />
+      <Popup settings={popupSettings} closePopup={closePopup} />
     </Container>
   );
 }

@@ -1,9 +1,45 @@
 import styled, { css } from 'styled-components';
+import ReactDOM from 'react-dom';
 import { PopupEpisodes } from './PopupEpisodes';
 import { PopupHeader } from './PopupHeader';
 import { PopupInfo } from './PopupInfo';
+import { useEffect } from 'react';
+import { useCallback } from 'react';
 
-export function Popup({ settings: { visible, content = {} }, setSettings }) {
+//@NOTE: Сейчас фокус выходит за пределы модального окна, это можно исправить, сделав "ловушку для фокуса".
+export function Popup({ settings: { visible, content = {} }, closePopup }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        closePopup();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    if (visible) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+
+    return () => {
+      document.body.classList.remove('no-scroll');
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [visible, closePopup]);
+
+  const togglePopup = useCallback(
+    (e) => {
+      if (e.currentTarget !== e.target) return;
+
+      closePopup();
+    },
+    [closePopup]
+  );
+
+  if (!visible) return null;
+
   const {
     name,
     gender,
@@ -16,22 +52,10 @@ export function Popup({ settings: { visible, content = {} }, setSettings }) {
     episode: episodes
   } = content;
 
-  function togglePopup(e) {
-    if (e.currentTarget !== e.target) {
-      return;
-    }
-
-    setSettings((prevState) => ({
-      ...prevState,
-      visible: !prevState.visible
-    }));
-  }
-
-  return (
-    <PopupContainer visible={visible}>
+  return ReactDOM.createPortal(
+    <PopupContainer onClick={togglePopup} visible={visible}>
       <StyledPopup>
-        <CloseIcon onClick={togglePopup} />
-
+        <CloseIcon onClick={closePopup} />
         <PopupHeader
           name={name}
           gender={gender}
@@ -40,12 +64,11 @@ export function Popup({ settings: { visible, content = {} }, setSettings }) {
           species={species}
           type={type}
         />
-
         <PopupInfo origin={origin} location={location} />
-
         <PopupEpisodes episodes={episodes} />
       </StyledPopup>
-    </PopupContainer>
+    </PopupContainer>,
+    document.getElementById('modal')
   );
 }
 
@@ -98,8 +121,7 @@ const StyledPopup = styled.div`
   }
 `;
 
-const CloseIcon = styled.div`
-  cursor: pointer;
+const CloseIcon = styled.button`
   position: fixed;
   right: calc(30% - 10px);
   top: calc(10vh - 30px);

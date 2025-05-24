@@ -9,6 +9,24 @@ body {
   background-color: #001832;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
+}
+
+.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
+
+button {
+  all: unset;
+  display: inline-block;
+  cursor: pointer;
+}
+
+button:focus {
+  outline: 2px solid #fff3f3;
+  outline-offset: 2px;
 }
