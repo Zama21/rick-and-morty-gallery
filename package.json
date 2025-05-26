@@ -2,6 +2,7 @@
   "name": "elfsight-test-task",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://Zama21.github.io/rick-and-morty-gallery",
   "scripts": {
     "predeploy": "npm run build",
     "start": "react-app-rewired start",
