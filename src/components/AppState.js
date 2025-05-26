@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Loader, Text } from './common';
+import { Loader, Text } from '../common';
 import { useData } from './providers';
 
 export function AppState() {

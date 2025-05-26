@@ -1,5 +1,5 @@
+import { Text } from 'common';
 import styled from 'styled-components';
-import { Text } from '../common';
 
 export function PopupInfo({ origin, location }) {
   return (

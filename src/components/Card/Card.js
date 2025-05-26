@@ -2,9 +2,12 @@ import styled from 'styled-components';
 import { CardTitle } from './CardTitle';
 import { CardStatus } from './CardStatus';
 import { useCallback } from 'react';
+import { usePopup } from 'components/providers';
 
-export function Card({ props, onClickHandler }) {
+export function Card({ props }) {
+  const { openPopup } = usePopup();
   const { status, name, species, type, gender, image } = props;
+
   const handleInteraction = useCallback(
     (event) => {
       if (
@@ -13,10 +16,10 @@ export function Card({ props, onClickHandler }) {
         event.key === ' '
       ) {
         event.preventDefault();
-        onClickHandler(props);
+        openPopup(props);
       }
     },
-    [onClickHandler, props]
+    [openPopup, props]
   );
 
   return (

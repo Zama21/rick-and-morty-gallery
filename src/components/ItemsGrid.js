@@ -1,24 +1,20 @@
 import styled from 'styled-components';
 import { Popup } from './popup';
-import { useData } from './providers';
+import { useData, usePopup } from './providers';
 import { Card } from './Card';
-import { usePopup } from 'hooks';
-import { useCallback } from 'react';
 
 export function ItemsGrid() {
   const { characters } = useData();
-  const { popupSettings, openPopup, closePopup } = usePopup();
-
-  const handleCardClick = useCallback((props) => openPopup(props), [openPopup]);
+  const { popupSettings } = usePopup();
 
   if (!characters.length) return null;
 
   return (
     <Container>
       {characters.map((props) => (
-        <Card key={props.id} onClickHandler={handleCardClick} props={props} />
+        <Card key={props.id} props={props} />
       ))}
-      <Popup settings={popupSettings} closePopup={closePopup} />
+      {popupSettings.visible && <Popup />}
     </Container>
   );
 }

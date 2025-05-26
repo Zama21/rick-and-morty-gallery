@@ -1,5 +1,6 @@
 export { Pagination } from './Pagination';
 export { Header } from './header';
 export { ItemsGrid } from './ItemsGrid';
-export { DataProvider, useData } from './providers';
+// eslint-disable-next-line import/no-unused-modules
+export { DataProvider, useData, PopupProvider, usePopup } from './providers';
 export { AppState } from './AppState';

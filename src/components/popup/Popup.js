@@ -5,9 +5,13 @@ import { PopupHeader } from './PopupHeader';
 import { PopupInfo } from './PopupInfo';
 import { useEffect } from 'react';
 import { useCallback } from 'react';
+import { usePopup } from 'components/providers';
 
 //@NOTE: Сейчас фокус выходит за пределы модального окна, это можно исправить, сделав "ловушку для фокуса".
-export function Popup({ settings: { visible, content = {} }, closePopup }) {
+export function Popup() {
+  const { popupSettings, closePopup } = usePopup();
+  const { visible, content = {} } = popupSettings;
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -37,8 +41,6 @@ export function Popup({ settings: { visible, content = {} }, closePopup }) {
     },
     [closePopup]
   );
-
-  if (!visible) return null;
 
   const {
     name,

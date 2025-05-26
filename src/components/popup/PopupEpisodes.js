@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
-import { Loader, Text } from '../common';
 
 import { API_EPISODES_URL } from 'constants';
 import { useFetch } from 'hooks';
+import { Loader, Text } from 'common';
 
 export function PopupEpisodes({ episodes }) {
   const [episodeIds, setEpisodeIds] = useState([]);
